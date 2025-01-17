@@ -1,0 +1,30 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:ProgettoAPL"
+             x:Class="ProgettoAPL.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <!-- Colori -->
+            <Color x:Key="PrimaryColor">#3498DB</Color>
+            <Color x:Key="BackgroundColor">#F3F4F6</Color>
+            <Color x:Key="TextColorDark">#333333</Color>
+            <Color x:Key="TextColorLight">#FFFFFF</Color>
+
+            <!-- Stile per i Pulsanti -->
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource PrimaryColor}" />
+                <Setter Property="TextColor" Value="White"/>
+                <Setter Property="FontAttributes" Value="Bold"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="HeightRequest" Value="50"/>
+            </Style>
+
+            <!-- Stile per le Label -->
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextColorDark}" />
+                <Setter Property="FontSize" Value="16"/>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

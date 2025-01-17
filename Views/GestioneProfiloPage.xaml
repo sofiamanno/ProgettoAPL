@@ -1,0 +1,114 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProgettoAPL.ViewModels"
+             x:Class="ProgettoAPL.Views.GestioneProfiloPage">
+
+    <ContentPage.BindingContext>
+        <vm:GestioneProfiloViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,*,Auto"
+          BackgroundColor="#F3F4F6">
+        <!-- Barra Superiore con Titolo e Icone -->
+        <Grid RowDefinitions="Auto"
+              BackgroundColor="#2C3E50"
+              Padding="10"
+              VerticalOptions="Start">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Titolo -->
+            <Label Text="CoAuthLab - Il Tuo Profilo"
+                   FontSize="24"
+                   TextColor="White"
+                   FontAttributes="Bold"
+                   VerticalTextAlignment="Center"
+                   Grid.Column="0"/>
+
+            <!-- Icona Profilo -->
+            <ImageButton Source="profile_icon.png"
+                         Command="{Binding ProfileCommand}"
+                         WidthRequest="40"
+                         HeightRequest="40"
+                         BackgroundColor="Transparent"
+                         BorderColor="Transparent"
+                         Grid.Column="1"
+                         Margin="5"/>
+
+            <!-- Icona Logout -->
+            <ImageButton Source="logout_icon.png"
+                         Command="{Binding LogoutCommand}"
+                         WidthRequest="30"
+                         HeightRequest="40"
+                         BackgroundColor="Transparent"
+                         BorderColor="Transparent"
+                         Grid.Column="2"
+                         Margin="5"/>
+        </Grid>
+
+        <StackLayout Padding="20" Spacing="20"
+                     VerticalOptions="Start"
+                     HorizontalOptions="Center">
+
+            <!-- Mostra i dati dell'utente -->
+            <Frame CornerRadius="5"
+                   BorderColor="#3498DB"
+                   BackgroundColor="#2C3E50"
+                   Padding="10"
+                   WidthRequest="350"
+                   HeightRequest="100">
+                <VerticalStackLayout>
+                    <Label Text="Nome"
+                           FontSize="Medium"
+                           TextColor="Grey"/>
+                    <Label Text="{Binding Utente.Nome, Mode=TwoWay}"
+                           FontSize="Large"
+                           FontAttributes="Bold"
+                           TextColor="White"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame CornerRadius="5"
+                   BorderColor="#3498DB"
+                   BackgroundColor="#2C3E50"
+                   Padding="10"
+                   WidthRequest="350"
+                   HeightRequest="100">
+                <VerticalStackLayout>
+                    <Label Text="Email"
+                           FontSize="Medium"
+                           TextColor="Grey"/>
+                    <Label Text="{Binding Utente.Email, Mode=TwoWay}"
+                           FontSize="Large"
+                           FontAttributes="Bold"
+                           TextColor="White"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Cambia la password -->
+            <Label Text="Nuova Password:"
+                   FontSize="Medium" />
+            <Entry x:Name="NuovaPasswordEntry"
+                   Text="{Binding NuovaPassword, Mode=TwoWay}"
+                   IsPassword="True"
+                   Placeholder="Inserisci nuova password"
+                   BackgroundColor="DarkGray"/>
+
+            <Label Text="Ripeti Nuova Password:"
+                   FontSize="Medium" />
+            <Entry x:Name="ConfermaPasswordEntry"
+                   Text="{Binding ConfermaPassword, Mode=TwoWay}"
+                   IsPassword="True"
+                   Placeholder="Ripeti la nuova password"
+                   BackgroundColor="DarkGray"/>
+
+            <!-- Bottone per confermare la modifica della password -->
+            <Button Text="Conferma"
+                    Command="{Binding ConfermaPasswordCommand}"/>
+        </StackLayout>
+    </Grid>
+</ContentPage>
