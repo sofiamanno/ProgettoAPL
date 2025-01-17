@@ -57,8 +57,8 @@ namespace ProgettoAPL.ViewModels
         public GestioneProfiloViewModel()
         {
             _apiService = new ApiService();
-            ConfermaPasswordCommand = new Command(async () => await OnConfermaPassword());
-            LogoutCommand = new Command(async () => await OnLogout());
+            ConfermaPasswordCommand = new Command(async () => await OnConfermaPasswordAsync());
+            LogoutCommand = new Command(async () => await OnLogoutAsync());
 
             // Carica i dati del profilo utente
             LoadUserProfile();
@@ -68,15 +68,8 @@ namespace ProgettoAPL.ViewModels
         {
             try
             {
-                // Recupera l'ID utente dalle preferenze
-                string userId = Preferences.Get("UserId", string.Empty);
-                if (string.IsNullOrEmpty(userId))
-                {
-                    await Application.Current.MainPage.DisplayAlert("Errore", "ID utente non trovato", "OK");
-                    return;
-                }
-
-                Utente = await _apiService.GetProfileAsync(userId);
+                // Recupera il profilo utente senza usare le preferenze
+                Utente = await _apiService.GetProfileAsync();
             }
             catch (Exception ex)
             {
@@ -84,7 +77,7 @@ namespace ProgettoAPL.ViewModels
             }
         }
 
-        private async Task OnConfermaPassword()
+        private async Task OnConfermaPasswordAsync()
         {
             if (string.IsNullOrWhiteSpace(NuovaPassword) || NuovaPassword.Length < 10)
             {
@@ -101,7 +94,7 @@ namespace ProgettoAPL.ViewModels
             try
             {
                 Utente.Pwd = NuovaPassword;
-                var response = await _apiService.UpdateProfileAsync(Utente.Email, Utente);
+                var response = await _apiService.UpdateProfileAsync(Utente);
                 if (response.IsSuccessStatusCode)
                 {
                     await Application.Current.MainPage.DisplayAlert("Successo", "Profilo aggiornato con successo", "OK");
@@ -117,21 +110,17 @@ namespace ProgettoAPL.ViewModels
             }
         }
 
-        private async Task OnLogout()
+        private async Task OnLogoutAsync()
         {
             bool conferma = await Application.Current.MainPage.DisplayAlert(
                  "Logout", "Sei sicuro di voler uscire?", "Sì", "No");
 
             if (conferma)
             {
-                // Cancella l'ID utente dalle preferenze
-                Preferences.Remove("UserId");
-
                 // Navigazione alla pagina di Login
                 await Application.Current.MainPage.Navigation.PushAsync(new LoginPage());
             }
         }
-
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName)

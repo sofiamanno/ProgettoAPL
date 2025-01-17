@@ -52,7 +52,7 @@ public class ApiService
     }
 
     // Metodo per il LOGIN di un utente
-    public async Task<string> LoginUserAsync(string email, string password)
+    public async Task LoginUserAsync(string email, string password)
     {
         var loginData = new
         {
@@ -62,27 +62,21 @@ public class ApiService
 
         var response = await PostAsync("auth/login", loginData);
         response.EnsureSuccessStatusCode();
-
-        // Supponiamo che il backend restituisca un oggetto con l'ID utente
-        var user = await response.Content.ReadFromJsonAsync<Utente>();
-        return user?.Id; // Assicurati che l'oggetto Utente abbia una proprietà Id
     }
 
     // Metodo per ottenere il profilo utente
-    public async Task<Utente> GetProfileAsync(string userId)
+    public async Task<Utente> GetProfileAsync()
     {
-        var response = await _httpClient.GetAsync($"profile/{userId}");
+        var response = await _httpClient.GetAsync("profile");
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<Utente>();
     }
 
     // Metodo per aggiornare il profilo utente
-    public async Task<HttpResponseMessage> UpdateProfileAsync(string userId, Utente updatedProfile)
+    public async Task<HttpResponseMessage> UpdateProfileAsync(Utente updatedProfile)
     {
-        return await PutAsync($"profile/{userId}", updatedProfile);
+        return await PutAsync("profile", updatedProfile);
     }
-
-
 
     //-----------------------------------------------------------------------------------------------------
     // Metodo GET Generico: Effettua richieste GET e restituisce il contenuto della risposta come stringa
