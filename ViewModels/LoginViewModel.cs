@@ -81,18 +81,10 @@ namespace ProgettoAPL.ViewModels
             IsLoggingIn = true;
             try
             {
-                string userId = await _apiService.LoginUserAsync(Email, Password);
-                if (!string.IsNullOrEmpty(userId))
-                {
-                    Preferences.Set("UserId", userId);
-                    await Application.Current.MainPage.DisplayAlert("Successo", "Login completato!", "OK");
-                    // Naviga alla pagina principale o dashboard
-                    await Application.Current.MainPage.Navigation.PushAsync(new MainPage());
-                }
-                else
-                {
-                    await Application.Current.MainPage.DisplayAlert("Errore", "Login fallito. Riprova.", "OK");
-                }
+                await _apiService.LoginUserAsync(Email, Password);
+                //await Application.Current.MainPage.DisplayAlert("Successo", "Login completato!", "OK");
+                // Naviga alla pagina principale o dashboard
+                await Application.Current.MainPage.Navigation.PushAsync(new HomePage());
             }
             catch (Exception ex)
             {

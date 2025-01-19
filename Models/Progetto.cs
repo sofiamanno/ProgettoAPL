@@ -10,7 +10,8 @@ namespace ProgettoAPL.Models
 {
     public class Progetto
     {
-        public string Obiettivi { get; set; }
-        public Utente CreatoDa { get; set; }
+        public int ID { get; set; }
+        public string Descrizione { get; set; }
+        public Utente Autore { get; set; }
     }
 }

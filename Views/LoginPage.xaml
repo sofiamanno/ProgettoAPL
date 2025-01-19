@@ -1,12 +1,19 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ProgettoAPL.ViewModels"
+             xmlns:local="clr-namespace:ProgettoAPL.Converters"
              x:Class="ProgettoAPL.Views.LoginPage"
              BackgroundColor="#F3F4F6">
     <ContentPage.BindingContext>
         <vm:LoginViewModel />
     </ContentPage.BindingContext>
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
     <Grid>
         <!-- Sfondo principale -->
         <Grid.RowDefinitions>
