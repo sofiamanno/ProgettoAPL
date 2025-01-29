@@ -1,10 +1,17 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using ProgettoAPL;
 using ProgettoAPL.Models;
 using ProgettoAPL.Services;
+using ProgettoAPL.Views;
+
+
+
 
 public class ApiService
 {
@@ -28,20 +35,23 @@ public class ApiService
 
     public HttpClient HttpClient => _httpClient;
 
-    // Metodo per la REGISTRAZIONE di un nuovo utente
+
+    //<<-------------------------------------- REGISRAZIONE, LOGIN E PROFILO ----------------------------->
+    // REGISTRAZIONE
     public async Task<HttpResponseMessage> RegisterUserAsync(string username, string email, string password)
     {
-        var userData = new
+
+        var userData = new Utente
         {
             Username = username,
             Email = email,
-            Password = password
+            Pwd = password
         };
 
         return await PostAsync("register", userData); // Modifica l'endpoint
     }
 
-    // Funzione per verificare se l'username è già presente nel database
+    // USERNAME LIBERO
     public async Task<bool> CheckUsernameAvailabilityAsync(string username)
     {
         var response = await _httpClient.GetAsync($"check-username?username={username}"); // Modifica l'endpoint
@@ -55,7 +65,7 @@ public class ApiService
         return false;
     }
 
-    // Metodo per il LOGIN di un utente
+    // LOGIN
     public async Task LoginUserAsync(string email, string password)
     {
         var loginData = new
@@ -87,7 +97,9 @@ public class ApiService
             }
             else
             {
-                await App.Current.MainPage.DisplayAlert("Login riuscito", "Cookie di sessione impostato correttamente.", "OK");
+                //await App.Current.MainPage.DisplayAlert("Login riuscito", "Cookie di sessione impostato correttamente.", "OK");
+                await Application.Current.MainPage.Navigation.PushAsync(new HomePage());
+
             }
         }
         catch (HttpRequestException ex)
@@ -100,13 +112,30 @@ public class ApiService
         }
     }
 
-    // Metodo per ottenere i cookie di sessione
+    // RECUPERA PASSWORD
+    public async Task<bool> ForgotPasswordAsync(string email)
+    {
+        var response = await _httpClient.GetAsync($"forgot-password?email={email}");
+
+        if (response.IsSuccessStatusCode)
+        {
+            var exists = await response.Content.ReadFromJsonAsync<bool>(); // Deserializziamo il valore booleano
+            return exists;
+
+        }
+
+        return false;
+    }
+
+    // COOKIE DI SESSIONE
     public List<Cookie> GetSessionCookies()
     {
         return SessionManager.GetSessionCookies();
     }
 
-    // Metodo per ottenere il profilo utente
+
+
+    // OTTENERE IL PROFILO
     public async Task<Utente> GetProfileAsync()
     {
         var response = await _httpClient.GetAsync("profile"); // Modifica l'endpoint
@@ -114,35 +143,73 @@ public class ApiService
         return await response.Content.ReadFromJsonAsync<Utente>();
     }
 
-    // Metodo per aggiornare il profilo utente
-    public async Task<HttpResponseMessage> UpdateProfileAsync(Utente updatedProfile)
+    public async Task<Utente> GetAuthorByIdAsync(int autoreId)
     {
-        return await PutAsync("profile", updatedProfile); // Modifica l'endpoint
+        var response = await _httpClient.GetAsync($"author/?id={autoreId}");
+        response.EnsureSuccessStatusCode();
+        var author = await response.Content.ReadFromJsonAsync<Utente>();
+        return author;
     }
 
-    // Metodo per il LOGOUT di un utente
+
+
+
+    // AGGIORNA PROFILO
+    public async Task<HttpResponseMessage> UpdateProfileAsync(Utente updatedProfile)
+    {
+        return await PutAsync("changepwd", updatedProfile); // Modifica l'endpoint
+    }
+
+    //LOGOUT
     public async Task LogoutUserAsync()
     {
         var response = await _httpClient.GetAsync("logout"); // Assicurati che l'endpoint sia corretto
         response.EnsureSuccessStatusCode();
     }
 
-    // Metodo per ottenere la lista dei progetti
+
+    //<<-------------------------------------- PROGETTI ----------------------------->
+    
+    //LISTA DI TUTTI I PROGETTI
     public async Task<List<Progetto>> GetProjectsAsync()
     {
         var response = await _httpClient.GetAsync("projects"); // Modifica l'endpoint
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<List<Progetto>>();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        Debug.WriteLine("Risposta JSON: " + jsonResponse);
+        var projects = JsonConvert.DeserializeObject<List<Progetto>>(jsonResponse);
+        if (projects == null)
+        {
+            throw new InvalidOperationException("La risposta non contiene una lista di progetti valida.");
+        }
+        return projects;
     }
 
-    // Metodo per creare un nuovo progetto
-    public async Task<HttpResponseMessage> CreateProjectAsync(Progetto newProject)
+    // CREA NUOVO PROGETTO
+    public async Task<Progetto> CreateProjectAsync(Progetto newProject)
     {
         var response = await PostAsync("project", newProject); // Modifica l'endpoint
         response.EnsureSuccessStatusCode();
-        return response;
+        var createdProject = await response.Content.ReadFromJsonAsync<Progetto>();
+        if (createdProject == null)
+        {
+            throw new InvalidOperationException("La risposta non contiene un progetto valido.");
+        }
+        Debug.WriteLine("Progetto Creato JSON Response: " + createdProject);
+        return createdProject;
     }
 
+    //ELIMINA PROGETTO
+    public async Task DeleteProjectAsync(int projectId)
+    {
+        var response = await _httpClient.GetAsync($"delete_project/?id={projectId}");
+        response.EnsureSuccessStatusCode();
+    }
+
+
+
+
+    // <----------------------------------------------- METODI GENERICI --------------------------------------------------->
     // Metodo GET Generico: Effettua richieste GET e restituisce il contenuto della risposta come stringa
     public async Task<string> GetAsync(string endpoint)
     {

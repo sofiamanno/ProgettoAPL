@@ -1,10 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
+using System.Net;
+using System.Runtime.CompilerServices;
 using Microsoft.Maui.Controls;
 using ProgettoAPL.Models;
 using ProgettoAPL.Services;
 using ProgettoAPL.Views;
+using System.Diagnostics;
+using Newtonsoft.Json;
 
 
 namespace ProgettoAPL.ViewModels
@@ -13,166 +17,132 @@ namespace ProgettoAPL.ViewModels
     {
         private string _newProjectDescription;
         private bool _isCreatingProject;
-        private bool _hasProjects;
+        private bool _hasNoProjects;
         private readonly ApiService _apiService;
         private Utente _currentUser;
 
         public string NewProjectDescription
         {
             get => _newProjectDescription;
-            set
-            {
-                if (_newProjectDescription != value)
-                {
-                    _newProjectDescription = value;
-                    OnPropertyChanged(nameof(NewProjectDescription));
-                }
-            }
+            set => SetProperty(ref _newProjectDescription, value);
         }
 
         public bool IsCreatingProject
         {
             get => _isCreatingProject;
-            set
-            {
-                if (_isCreatingProject != value)
-                {
-                    _isCreatingProject = value;
-                    OnPropertyChanged(nameof(IsCreatingProject));
-                }
-            }
+            set => SetProperty(ref _isCreatingProject, value);
         }
 
-        public bool HasProjects
+        public bool HasNoProjects
         {
-            get => _hasProjects;
-            set
-            {
-                if (_hasProjects != value)
-                {
-                    _hasProjects = value;
-                    OnPropertyChanged(nameof(HasProjects));
-                }
-            }
+            get => _hasNoProjects;
+            set => SetProperty(ref _hasNoProjects, value);
         }
 
         public class ProgettoDisplayModel
         {
+            public int ID { get; set; } // Add this line
             public string Descrizione { get; set; }
-            public string AutoreNome { get; set; }
+            public int AutoreID { get; set; }
+            public string AutoreUsername { get; set; }
+            public bool CanDelete { get; set; }
         }
+
+
 
         public ObservableCollection<ProgettoDisplayModel> Progetti { get; set; }
 
-        // Comandi statici per ora
         public ICommand LogoutCommand { get; }
         public ICommand NewProjectCommand { get; }
         public ICommand ProfileCommand { get; }
         public ICommand CreateProjectCommand { get; }
         public ICommand ProjectSelectedCommand { get; }
+        public ICommand DeleteProjectCommand { get; }
 
         public HomeViewModel()
         {
             _apiService = App.ApiServiceInstance;
-
             Progetti = new ObservableCollection<ProgettoDisplayModel>();
 
-            // Comandi collegati a metodi statici per ora
-            LogoutCommand = new Command(async () => await OnLogout());
+            LogoutCommand = new Command(async () => await ExecuteWithExceptionHandling(OnLogout));
             NewProjectCommand = new Command(OnNewProject);
-            ProfileCommand = new Command(async () => await OnProfile());
-            CreateProjectCommand = new Command(async () => await OnCreateProject());
-            ProjectSelectedCommand = new Command<ProgettoDisplayModel>(async (project) => await OnProjectSelected(project));
+            ProfileCommand = new Command(async () => await ExecuteWithExceptionHandling(OnProfile));
+            CreateProjectCommand = new Command(async () => await ExecuteWithExceptionHandling(OnCreateProject));
+            ProjectSelectedCommand = new Command<ProgettoDisplayModel>(async (project) => await ExecuteWithExceptionHandling(() => OnProjectSelected(project)));
+            DeleteProjectCommand = new Command<ProgettoDisplayModel>(async (project) => await ExecuteWithExceptionHandling(() => OnDeleteProject(project)));
 
-            // Carica i progetti e il profilo utente all'avvio
+
             LoadUserProfile();
             LoadProjects();
         }
 
         private async void LoadUserProfile()
         {
-            try
+            await ExecuteWithExceptionHandling(async () =>
             {
-                // Recupera i cookie di sessione
-                var cookies = SessionManager.GetSessionCookies();
-                var sessionCookie = cookies.FirstOrDefault(c => c.Name == "session-name");
-
+                var sessionCookie = GetSessionCookie();
                 if (sessionCookie != null)
                 {
-                    // Rimuovi l'intestazione se esiste già
-                    if (_apiService.HttpClient.DefaultRequestHeaders.Contains("Cookie"))
-                    {
-                        _apiService.HttpClient.DefaultRequestHeaders.Remove("Cookie");
-                    }
-
-                    // Aggiungi il cookie di sessione alle intestazioni delle richieste
-                    _apiService.HttpClient.DefaultRequestHeaders.Add("Cookie", $"{sessionCookie.Name}={sessionCookie.Value}");
-
-                    // Chiama la rotta del server che richiede autenticazione
+                    AddSessionCookieToHeaders(sessionCookie);
+                    //var jsonResponse = await _apiService.GetAsync("profile");
+                    //Debug.WriteLine("Profilo JSON Response: " + jsonResponse); // Scrive la risposta JSON nella finestra di debug
                     _currentUser = await _apiService.GetProfileAsync();
                 }
                 else
                 {
-                    Console.WriteLine("Nessun cookie di sessione trovato.");
-                    await Application.Current.MainPage.DisplayAlert("Errore", "Nessun cookie di sessione trovato.", "OK");
+                    await ShowAlert("Errore", "Nessun cookie di sessione trovato.");
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Errore durante il caricamento del profilo utente: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Errore", $"Errore durante il caricamento del profilo utente: {ex.Message}", "OK");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Errore imprevisto: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Errore", $"Errore imprevisto: {ex.Message}", "OK");
-            }
+            });
         }
 
         private async void LoadProjects()
         {
-            try
+            await ExecuteWithExceptionHandling(async () =>
             {
-                // Recupera i cookie di sessione
-                var cookies = SessionManager.GetSessionCookies();
-                var sessionCookie = cookies.FirstOrDefault(c => c.Name == "session-name");
-
+                var sessionCookie = GetSessionCookie();
                 if (sessionCookie != null)
                 {
-                    // Rimuovi l'intestazione se esiste già
-                    if (_apiService.HttpClient.DefaultRequestHeaders.Contains("Cookie"))
-                    {
-                        _apiService.HttpClient.DefaultRequestHeaders.Remove("Cookie");
-                    }
-
-                    // Aggiungi il cookie di sessione alle intestazioni delle richieste
-                    _apiService.HttpClient.DefaultRequestHeaders.Add("Cookie", $"{sessionCookie.Name}={sessionCookie.Value}");
-
-                    // Chiama le rotte del server che richiedono autenticazione
+                    AddSessionCookieToHeaders(sessionCookie);
+                    
                     var projects = await _apiService.GetProjectsAsync();
                     Progetti.Clear();
-                    foreach (var project in projects)
+                    if (projects != null && projects.Count > 0)
                     {
-                        Progetti.Add(new ProgettoDisplayModel { Descrizione = project.Descrizione, AutoreNome = project.Autore.Nome });
+                        foreach (var project in projects)
+                        {
+
+                            try
+                            {
+                                var author = await _apiService.GetAuthorByIdAsync(project.AutoreID);
+
+                                Progetti.Add(new ProgettoDisplayModel
+                                {
+                                    ID = project.ID, 
+                                    Descrizione = project.Descrizione,
+                                    AutoreID = project.AutoreID,
+                                    AutoreUsername = author.Username,
+                                    CanDelete = project.AutoreID == _currentUser.Id // Imposta CanDelete
+
+                                });
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Errore durante il caricamento del progetto {project.Descrizione}: {ex.Message}");
+                                await ShowAlert("Errore", $"Errore durante il caricamento del progetto {project.Descrizione}: {ex.Message}");
+                            }
+                        }
+                        HasNoProjects = false;
                     }
-                    HasProjects = Progetti.Count > 0;
+                    else
+                    {
+                        HasNoProjects = true;
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("Nessun cookie di sessione trovato.");
-                    await Application.Current.MainPage.DisplayAlert("Errore", "Nessun cookie di sessione trovato.", "OK");
+                    await ShowAlert("Errore", "Nessun cookie di sessione trovato.");
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Errore durante il caricamento dei progetti: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Errore", $"Errore durante il caricamento dei progetti: {ex.Message}", "OK");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Errore imprevisto: {ex.Message}");
-                await Application.Current.MainPage.DisplayAlert("Errore", $"Errore imprevisto: {ex.Message}", "OK");
-            }
+            });
         }
 
         private void OnNewProject()
@@ -184,29 +154,40 @@ namespace ProgettoAPL.ViewModels
         {
             if (string.IsNullOrWhiteSpace(NewProjectDescription))
             {
-                await Application.Current.MainPage.DisplayAlert("Errore", "La descrizione del progetto non può essere vuota.", "OK");
+                await ShowAlert("Errore", "La descrizione del progetto non può essere vuota.");
                 return;
             }
 
             var newProject = new Progetto
             {
                 Descrizione = NewProjectDescription,
-                Autore = _currentUser // Utilizza l'oggetto Utente per l'autore
+                AutoreID = _currentUser.Id,
+
             };
 
-            try
+            await ExecuteWithExceptionHandling(async () =>
             {
-                await _apiService.CreateProjectAsync(newProject);
-                Progetti.Add(new ProgettoDisplayModel { Descrizione = newProject.Descrizione, AutoreNome = newProject.Autore.Nome });
+                var createdProject = await _apiService.CreateProjectAsync(newProject);
+                Debug.WriteLine("Progetto Creato: " + createdProject.Descrizione);
+
+                // Ottieni le informazioni sull'autore utilizzando l'AutoreID
+                var author = await _apiService.GetAuthorByIdAsync(createdProject.AutoreID);
+
+                Progetti.Add(new ProgettoDisplayModel
+                {
+                    ID = createdProject.ID,
+                    Descrizione = createdProject.Descrizione,
+                    AutoreID = createdProject.AutoreID,
+                    AutoreUsername = author.Username,
+                    CanDelete = true
+                });
+
+                Debug.WriteLine("ho aggiunto il progetto alla lista ");
                 NewProjectDescription = string.Empty;
                 IsCreatingProject = false;
-                HasProjects = Progetti.Count > 0;
-                await Application.Current.MainPage.DisplayAlert("Successo", "Progetto creato con successo!", "OK");
-            }
-            catch (Exception ex)
-            {
-                await Application.Current.MainPage.DisplayAlert("Errore", $"Si è verificato un errore: {ex.Message}", "OK");
-            }
+                HasNoProjects = false;
+                await ShowAlert("Successo", "Progetto creato con successo!");
+            });
         }
 
         private async Task OnProjectSelected(ProgettoDisplayModel project)
@@ -215,42 +196,105 @@ namespace ProgettoAPL.ViewModels
             // await Application.Current.MainPage.Navigation.PushAsync(new ProgettoView(project));
         }
 
-        // Metodi statici con commenti per future chiamate al server
-        private async Task OnLogout()
-        {
-            bool conferma = await Application.Current.MainPage.DisplayAlert(
-                  "Logout", "Sei sicuro di voler uscire?", "Sì", "No");
 
+        private async Task OnDeleteProject(ProgettoDisplayModel project)
+        {
+            bool conferma = await Application.Current.MainPage.DisplayAlert("Conferma", "Sei sicuro di voler eliminare questo progetto?", "Sì", "No");
             if (conferma)
             {
-                try
+                await ExecuteWithExceptionHandling(async () =>
+                {
+                    try
+                    {
+                        await _apiService.DeleteProjectAsync(project.ID);
+                        Progetti.Remove(project);
+                        if (Progetti.Count == 0)
+                        {
+                            HasNoProjects = true;
+                        }
+                        await ShowAlert("Successo", "Progetto eliminato con successo!");
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        await ShowAlert("Errore", $"Errore durante la richiesta: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        await ShowAlert("Errore", $"Errore imprevisto: {ex.Message}");
+                    }
+                });
+            }
+        }
+
+
+        private async Task OnLogout()
+        {
+            bool conferma = await Application.Current.MainPage.DisplayAlert("Logout", "Sei sicuro di voler uscire?", "Sì", "No");
+            if (conferma)
+            {
+                await ExecuteWithExceptionHandling(async () =>
                 {
                     await _apiService.LogoutUserAsync();
-                    // Reset eventuali dati utente (se presenti)
-                    // Application.Current.Properties.Clear();
-                    // await Application.Current.SavePropertiesAsync();
-
-                    // Navigazione alla pagina di Login
                     await Application.Current.MainPage.Navigation.PushAsync(new LoginPage());
-                }
-                catch (Exception ex)
-                {
-                    await Application.Current.MainPage.DisplayAlert("Errore", $"Si è verificato un errore: {ex.Message}", "OK");
-                }
+                });
             }
         }
 
         private async Task OnProfile()
         {
-            // Naviga alla pagina di gestione del profilo
             await Application.Current.MainPage.Navigation.PushAsync(new GestioneProfiloPage());
         }
 
-        // Implementazione INotifyPropertyChanged
+        private async Task ExecuteWithExceptionHandling(Func<Task> action)
+        {
+            try
+            {
+                await action();
+            }
+            catch (HttpRequestException ex)
+            {
+                await ShowAlert("Errore", $"Errore durante la richiesta: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                await ShowAlert("Errore", $"Errore imprevisto: {ex.Message}");
+            }
+        }
+
+        private Cookie GetSessionCookie()
+        {
+            var cookies = SessionManager.GetSessionCookies();
+            return cookies.FirstOrDefault(c => c.Name == "session-name");
+        }
+
+        private void AddSessionCookieToHeaders(Cookie sessionCookie)
+        {
+            if (_apiService.HttpClient.DefaultRequestHeaders.Contains("Cookie"))
+            {
+                _apiService.HttpClient.DefaultRequestHeaders.Remove("Cookie");
+            }
+            _apiService.HttpClient.DefaultRequestHeaders.Add("Cookie", $"{sessionCookie.Name}={sessionCookie.Value}");
+        }
+
+        private async Task ShowAlert(string title, string message)
+        {
+            await Application.Current.MainPage.DisplayAlert(title, message, "OK");
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(backingStore, value))
+                return false;
+
+            backingStore = value;
+            OnPropertyChanged(propertyName);
+            return true;
         }
     }
 }

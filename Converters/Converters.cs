@@ -8,20 +8,20 @@ namespace ProgettoAPL.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool booleanValue)
+            if (value is bool boolValue)
             {
-                return !booleanValue;
+                return !boolValue;
             }
-            return false;
+            return value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool booleanValue)
+            if (value is bool boolValue)
             {
-                return !booleanValue;
+                return !boolValue;
             }
-            return false;
+            return value;
         }
     }
 }

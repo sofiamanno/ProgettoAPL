@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using ProgettoAPL.Views;
+using System.Net;
 
 namespace ProgettoAPL.ViewModels
 {
@@ -82,9 +83,12 @@ namespace ProgettoAPL.ViewModels
             try
             {
                 await _apiService.LoginUserAsync(Email, Password);
-                //await Application.Current.MainPage.DisplayAlert("Successo", "Login completato!", "OK");
+                // Assuming the LoginUserAsync method throws an exception on failure
                 // Naviga alla pagina principale o dashboard
-                await Application.Current.MainPage.Navigation.PushAsync(new HomePage());
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                await Application.Current.MainPage.DisplayAlert("Errore", "Credenziali non valide. Riprova.", "OK");
             }
             catch (Exception ex)
             {

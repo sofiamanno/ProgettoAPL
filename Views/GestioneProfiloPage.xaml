@@ -50,65 +50,77 @@
                          Margin="5"/>
         </Grid>
 
-        <StackLayout Padding="20" Spacing="20"
-                     VerticalOptions="Start"
-                     HorizontalOptions="Center">
 
-            <!-- Mostra i dati dell'utente -->
-            <Frame CornerRadius="5"
-                   BorderColor="#3498DB"
-                   BackgroundColor="#2C3E50"
-                   Padding="10"
-                   WidthRequest="350"
-                   HeightRequest="100">
-                <VerticalStackLayout>
-                    <Label Text="Nome"
-                           FontSize="Medium"
-                           TextColor="Grey"/>
-                    <Label Text="{Binding Utente.Nome, Mode=TwoWay}"
-                           FontSize="Large"
-                           FontAttributes="Bold"
-                           TextColor="White"/>
-                </VerticalStackLayout>
-            </Frame>
+        <!-- Contenuto Principale -->
+        <ScrollView Grid.Row="1">
+            <StackLayout Padding="20" Spacing="20"
+                         VerticalOptions="Start"
+                         HorizontalOptions="Center">
 
-            <Frame CornerRadius="5"
-                   BorderColor="#3498DB"
-                   BackgroundColor="#2C3E50"
-                   Padding="10"
-                   WidthRequest="350"
-                   HeightRequest="100">
-                <VerticalStackLayout>
-                    <Label Text="Email"
-                           FontSize="Medium"
-                           TextColor="Grey"/>
-                    <Label Text="{Binding Utente.Email, Mode=TwoWay}"
-                           FontSize="Large"
-                           FontAttributes="Bold"
-                           TextColor="White"/>
-                </VerticalStackLayout>
-            </Frame>
+                <!-- Mostra i dati dell'utente -->
+                <Frame CornerRadius="10"
+                       BorderColor="#3498DB"
+                       BackgroundColor="#2C3E50"
+                       Padding="15"
+                       WidthRequest="350">
+                    <VerticalStackLayout>
+                        <Label Text="Nome"
+                               FontSize="Medium"
+                               TextColor="LightGray"/>
+                        <Label Text="{Binding Utente.Username, Mode=TwoWay}"
+                               FontSize="Large"
+                               FontAttributes="Bold"
+                               TextColor="White"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <!-- Cambia la password -->
-            <Label Text="Nuova Password:"
-                   FontSize="Medium" />
-            <Entry x:Name="NuovaPasswordEntry"
-                   Text="{Binding NuovaPassword, Mode=TwoWay}"
-                   IsPassword="True"
-                   Placeholder="Inserisci nuova password"
-                   BackgroundColor="DarkGray"/>
+                <Frame CornerRadius="10"
+                       BorderColor="#3498DB"
+                       BackgroundColor="#2C3E50"
+                       Padding="15"
+                       WidthRequest="350">
+                    <VerticalStackLayout>
+                        <Label Text="Email"
+                               FontSize="Medium"
+                               TextColor="LightGray"/>
+                        <Label Text="{Binding Utente.Email, Mode=TwoWay}"
+                               FontSize="Large"
+                               FontAttributes="Bold"
+                               TextColor="White"/>
+                    </VerticalStackLayout>
+                </Frame>
 
-            <Label Text="Ripeti Nuova Password:"
-                   FontSize="Medium" />
-            <Entry x:Name="ConfermaPasswordEntry"
-                   Text="{Binding ConfermaPassword, Mode=TwoWay}"
-                   IsPassword="True"
-                   Placeholder="Ripeti la nuova password"
-                   BackgroundColor="DarkGray"/>
+                <!-- Cambia la password -->
+                <Label Text="Nuova Password:"
+                       FontSize="Medium"
+                       TextColor="#2C3E50"/>
+                <Entry x:Name="NuovaPasswordEntry"
+                       Text="{Binding NuovaPassword, Mode=TwoWay}"
+                       IsPassword="True"
+                       Placeholder="Inserisci nuova password"
+                       BackgroundColor="White"
+                       TextColor="#2C3E50"
+                       Margin="0,0,0,10"/>
 
-            <!-- Bottone per confermare la modifica della password -->
-            <Button Text="Conferma"
-                    Command="{Binding ConfermaPasswordCommand}"/>
-        </StackLayout>
+                <Label Text="Ripeti Nuova Password:"
+                       FontSize="Medium"
+                       TextColor="#2C3E50"/>
+                <Entry x:Name="ConfermaPasswordEntry"
+                       Text="{Binding ConfermaPassword, Mode=TwoWay}"
+                       IsPassword="True"
+                       Placeholder="Ripeti la nuova password"
+                       BackgroundColor="White"
+                       TextColor="#2C3E50"
+                       Margin="0,0,0,10"/>
+
+                <!-- Bottone per confermare la modifica della password -->
+                <Button Text="Conferma"
+                        Command="{Binding ConfermaPasswordCommand}"
+                        BackgroundColor="#3498DB"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Padding="10"/>
+            </StackLayout>
+        </ScrollView>
     </Grid>
 </ContentPage>

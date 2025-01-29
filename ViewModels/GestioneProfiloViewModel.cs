@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
 using ProgettoAPL.Models;
 using ProgettoAPL.Views;
+using ProgettoAPL.Services;
+
 
 
 namespace ProgettoAPL.ViewModels
@@ -57,6 +60,7 @@ namespace ProgettoAPL.ViewModels
         public GestioneProfiloViewModel()
         {
             _apiService = new ApiService();
+
             ConfermaPasswordCommand = new Command(async () => await OnConfermaPasswordAsync());
             LogoutCommand = new Command(async () => await OnLogoutAsync());
 
@@ -66,20 +70,24 @@ namespace ProgettoAPL.ViewModels
 
         private async void LoadUserProfile()
         {
-            try
+            await ExecuteWithExceptionHandling(async () =>
             {
-                // Recupera il profilo utente senza usare le preferenze
-                Utente = await _apiService.GetProfileAsync();
-            }
-            catch (Exception ex)
-            {
-                await Application.Current.MainPage.DisplayAlert("Errore", $"Impossibile caricare il profilo: {ex.Message}", "OK");
-            }
+                var sessionCookie = GetSessionCookie();
+                if (sessionCookie != null)
+                {
+                    AddSessionCookieToHeaders(sessionCookie);
+                    Utente = await _apiService.GetProfileAsync();
+                }
+                else
+                {
+                    await ShowAlert("Errore", "Nessun cookie di sessione trovato.");
+                }
+            });
         }
 
         private async Task OnConfermaPasswordAsync()
         {
-            if (string.IsNullOrWhiteSpace(NuovaPassword) || NuovaPassword.Length < 10)
+            if (string.IsNullOrWhiteSpace(NuovaPassword) || NuovaPassword.Length < 6)
             {
                 await Application.Current.MainPage.DisplayAlert("Errore", "La password deve avere almeno 10 caratteri", "OK");
                 return;
@@ -98,6 +106,9 @@ namespace ProgettoAPL.ViewModels
                 if (response.IsSuccessStatusCode)
                 {
                     await Application.Current.MainPage.DisplayAlert("Successo", "Profilo aggiornato con successo", "OK");
+                    // Pulisci i campi del form
+                    NuovaPassword = string.Empty;
+                    ConfermaPassword = string.Empty;
                 }
                 else
                 {
@@ -120,6 +131,42 @@ namespace ProgettoAPL.ViewModels
                 // Navigazione alla pagina di Login
                 await Application.Current.MainPage.Navigation.PushAsync(new LoginPage());
             }
+        }
+
+        private Cookie GetSessionCookie()
+        {
+            var cookies = SessionManager.GetSessionCookies();
+            return cookies.FirstOrDefault(c => c.Name == "session-name");
+        }
+
+        private void AddSessionCookieToHeaders(Cookie sessionCookie)
+        {
+            if (_apiService.HttpClient.DefaultRequestHeaders.Contains("Cookie"))
+            {
+                _apiService.HttpClient.DefaultRequestHeaders.Remove("Cookie");
+            }
+            _apiService.HttpClient.DefaultRequestHeaders.Add("Cookie", $"{sessionCookie.Name}={sessionCookie.Value}");
+        }
+
+        private async Task ExecuteWithExceptionHandling(Func<Task> action)
+        {
+            try
+            {
+                await action();
+            }
+            catch (HttpRequestException ex)
+            {
+                await ShowAlert("Errore", $"Errore durante la richiesta: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                await ShowAlert("Errore", $"Errore imprevisto: {ex.Message}");
+            }
+        }
+
+        private async Task ShowAlert(string title, string message)
+        {
+            await Application.Current.MainPage.DisplayAlert(title, message, "OK");
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

@@ -12,6 +12,6 @@ namespace ProgettoAPL.Models
     {
         public int ID { get; set; }
         public string Descrizione { get; set; }
-        public Utente Autore { get; set; }
+        public int AutoreID { get; set; }
     }
 }

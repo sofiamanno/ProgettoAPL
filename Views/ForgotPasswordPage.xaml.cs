@@ -19,7 +19,7 @@ namespace ProgettoAPL.Views
         private async void OnSendButtonClicked(object sender, EventArgs e)
         {
             ((ForgotPasswordViewModel)BindingContext).SendCommand.Execute(null);
-            await Application.Current.MainPage.DisplayAlert("Recupero Password", "Email di recupero inviata!", "OK");
+            //await Application.Current.MainPage.DisplayAlert("Recupero Password", "Email di recupero inviata!", "OK");
         }
 
         private async void OnBackButtonClicked(object sender, EventArgs e)

@@ -8,8 +8,8 @@ namespace ProgettoAPL.Models
 {
     public class Utente
     {
-        public string Id { get; set; } 
-        public string Nome { get; set; }
+        public int Id { get; set; } 
+        public string Username { get; set; }
         public string Pwd { get; set; }
         public string Email { get; set; }
     }
