@@ -30,12 +30,12 @@
             <!-- Titolo -->
             <Label Text="CoAuthLab - Login"
                    FontSize="40"
-                   TextColor="#2C3E50"
+                   TextColor="#5387a5"
                    HorizontalOptions="Center"
                    FontAttributes="Bold" />
 
             <!-- Form -->
-            <Frame BackgroundColor="#2C3E50" 
+            <Frame BackgroundColor="#5387a5" 
                    CornerRadius="15"
                    Padding="25"
                    HasShadow="True">
@@ -65,7 +65,7 @@
 
                     <!-- Pulsante Login -->
                     <Button Text="Login"
-                            BackgroundColor="#3498DB"
+                            BackgroundColor="#96e2d9"
                             TextColor="White"
                             CornerRadius="10"
                             HeightRequest="50"
@@ -78,7 +78,7 @@
                     <Label Text="Non hai un account? Registrati qui."
                            HorizontalOptions="Center"
                            Margin="20,0,0,0"
-                           TextColor="#3498DB"
+                           TextColor="#96e2d9"
                            FontSize="14">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnRegisterLabelTapped"/>
@@ -86,7 +86,7 @@
                     </Label>
 
                     <!-- Password Dimenticata -->
-                    <Label Text="Password dimenticata? Clicca qui." HorizontalOptions="Center" Margin="10,0,0,0" TextColor="#3498DB" FontSize="14">
+                    <Label Text="Password dimenticata? Clicca qui." HorizontalOptions="Center" Margin="10,0,0,0" TextColor="#96e2d9" FontSize="14">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnForgotPasswordLabelTapped"/>
                         </Label.GestureRecognizers>

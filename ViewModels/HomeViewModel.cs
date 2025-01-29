@@ -192,9 +192,12 @@ namespace ProgettoAPL.ViewModels
 
         private async Task OnProjectSelected(ProgettoDisplayModel project)
         {
-            // Naviga alla pagina di dettaglio del progetto
-            // await Application.Current.MainPage.Navigation.PushAsync(new ProgettoView(project));
+            var projectPage = new ProjectPage(project.ID);
+            await Application.Current.MainPage.Navigation.PushAsync(projectPage);
         }
+
+
+
 
 
         private async Task OnDeleteProject(ProgettoDisplayModel project)

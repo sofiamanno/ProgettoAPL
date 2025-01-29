@@ -72,8 +72,20 @@ build_metadata.AdditionalFiles.ManifestResourceName = ProgettoAPL.Views.LoginPag
 build_metadata.AdditionalFiles.TargetPath = Views\LoginPage.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\LoginPage.xaml
 
+[C:/Users/Sofia/Desktop/ProgettoAPL/ProgettoAPL/Views/ProjectPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = ProgettoAPL.Views.ProjectPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\ProjectPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\ProjectPage.xaml
+
 [C:/Users/Sofia/Desktop/ProgettoAPL/ProgettoAPL/Views/RegisterPage.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = ProgettoAPL.Views.RegisterPage.xaml
 build_metadata.AdditionalFiles.TargetPath = Views\RegisterPage.xaml
 build_metadata.AdditionalFiles.RelativePath = Views\RegisterPage.xaml
+
+[C:/Users/Sofia/Desktop/ProgettoAPL/ProgettoAPL/Views/TaskPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = ProgettoAPL.Views.TaskPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Views\TaskPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Views\TaskPage.xaml

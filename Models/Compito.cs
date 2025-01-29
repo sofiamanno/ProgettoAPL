@@ -10,12 +10,14 @@ namespace ProgettoAPL.Models
     public class Compito
 
     {
+        public int ID { get; set; }
         public string Descrizione { get; set; }
         public string Commenti { get; set; }
-        public string Modifiche { get; set; }
-        public Utente CreatoDa { get; set; }
-        public Utente AssegnatoDa { get; set; }
-        public CodiceSorgente CodiceSorgente { get; set; }
-        public Allegato Allegato { get; set; }
+      
+        public bool Completato { get; set; }
+        public int AutoreID { get; set; }
+        public int IncaricatoID { get; set; }
+        public int CodeID { get; set; }
+        public int ProgettoID { get; set; }
     }
 }

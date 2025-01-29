@@ -39,5 +39,10 @@ namespace ProgettoAPL.Views
             // Logica per visualizzare il profilo
             await DisplayAlert("Profilo", "Visualizza il profilo", "OK");
         }
+
+        private async void OnProjectSelected(object sender, EventArgs e)
+        {
+            await DisplayAlert("Progetto", "Visualizza il progetto", "OK");
+        }
     }
 }

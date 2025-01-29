@@ -2,7 +2,7 @@
                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                 xmlns:vm="clr-namespace:ProgettoAPL.ViewModels"
                 x:Class="ProgettoAPL.Views.HomePage"
-                BackgroundColor="#F3F4F6">
+                BackgroundColor="#5387a5">
        <ContentPage.BindingContext>
            <vm:HomeViewModel />
        </ContentPage.BindingContext>
@@ -11,7 +11,7 @@
              BackgroundColor="#F3F4F6">
            <!-- Barra Superiore con Titolo e Icone -->
            <Grid RowDefinitions="Auto"
-                 BackgroundColor="#2C3E50"
+                 BackgroundColor="#5387a5"
                  Padding="10"
                  VerticalOptions="Start">
 
@@ -56,16 +56,16 @@
                <StackLayout Spacing="20">
 
                    <!-- Pulsante Crea Nuovo Progetto -->
-                   <Button Text="➕ Crea Nuovo Progetto"
+                   <Button Text="+ Crea Nuovo Progetto"
                            Command="{Binding NewProjectCommand}"
-                           BackgroundColor="#3498DB"
+                           BackgroundColor="#96e2d9"
                            TextColor="White"
                            FontAttributes="Bold"
                            CornerRadius="10"
                            HeightRequest="50"/>
                   <StackLayout IsVisible="{Binding IsCreatingProject}" Padding="10" Margin="10">
                        <Label Text="Nuovo Progetto" FontSize="20" FontAttributes="Bold" />
-                      <Entry Placeholder="Descrizione" Text="{Binding NewProjectDescription}"  PlaceholderColor="#2C3E50" TextColor="White"/>
+                      <Entry Placeholder="Descrizione" Text="{Binding NewProjectDescription}"  PlaceholderColor="#5387a5" TextColor="White"/>
                        <Button Text="Crea" Command="{Binding CreateProjectCommand}" />
                    </StackLayout>
                    <!-- Titolo Progetti -->
@@ -83,9 +83,9 @@
                       VerticalOptions="CenterAndExpand" />
 
                   <!-- Lista dei Progetti -->
-                   <CollectionView ItemsSource="{Binding Progetti}"
+                <CollectionView ItemsSource="{Binding Progetti}"
                                    SelectionMode="Single">
-                       <CollectionView.ItemTemplate>
+                    <CollectionView.ItemTemplate>
                            <DataTemplate>
                                <Frame BackgroundColor="White"
                                       CornerRadius="10"
@@ -94,14 +94,21 @@
                                       BorderColor="#F3F4F6">
                                    <Grid ColumnDefinitions="*,Auto">
                                        <StackLayout>
-                                           <Label Text="{Binding Descrizione}"
+                                        <StackLayout.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ProjectSelectedCommand}"
+                                            CommandParameter="{Binding .}" />
+                                        </StackLayout.GestureRecognizers>
+                                           
+                                        <Label Text="{Binding Descrizione}"
                                                   FontSize="18"
                                                   FontAttributes="Bold"
                                                   TextColor="#333333" />
                                            <Label Text="{Binding AutoreUsername}"
                                                   FontSize="14"
                                                   TextColor="#777777"/>
-                                       </StackLayout>
+                                        
+                                    </StackLayout>
                                        <ImageButton Source="delete_icon.png"
                                                     IsVisible="{Binding CanDelete}"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=DeleteProjectCommand}"
@@ -111,7 +118,8 @@
                                                     Grid.Column="1"
                                                     Margin="0,0,10,0"/>
                                    </Grid>
-                               </Frame>
+                                
+                            </Frame>
                            </DataTemplate>
                        </CollectionView.ItemTemplate>
                    </CollectionView>
@@ -119,7 +127,7 @@
            </ScrollView>
 
            <!-- Footer -->
-           <Label Text="© 2024 CoAuthLab. Tutti i diritti riservati."
+           <Label Text="2024 CoAuthLab. Tutti i diritti riservati."
                   FontSize="12"
                   HorizontalOptions="Center"
                   VerticalOptions="Center"

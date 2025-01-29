@@ -25,12 +25,12 @@
             <!-- Titolo -->
             <Label Text="CoAuthLab - Registrazione"
                    FontSize="40"
-                   TextColor="#2C3E50"
+                   TextColor="#5387a5"
                    HorizontalOptions="Center"
                    FontAttributes="Bold" />
 
             <!-- Form -->
-            <Frame BackgroundColor="#2C3E50" 
+            <Frame BackgroundColor="#5387a5" 
                    CornerRadius="15"
                    Padding="25"
                    HasShadow="True">
@@ -84,7 +84,7 @@
 
                     <!-- Pulsante Registrati -->
                     <Button Text="Registrati"
-                            BackgroundColor="#3498DB"
+                            BackgroundColor="#96e2d9"
                             TextColor="White"
                             CornerRadius="10"
                             HeightRequest="50"

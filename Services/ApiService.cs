@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -152,6 +153,15 @@ public class ApiService
     }
 
 
+    // LISTA DI TUTTI GLI UTENTI REGISTRATI
+    public async Task<List<Utente>> GetUsersAsync()
+    {
+        var response = await _httpClient.GetAsync("all_users"); // Modifica l'endpoint con quello corretto
+        response.EnsureSuccessStatusCode();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<List<Utente>>(jsonResponse);
+    }
+
 
 
     // AGGIORNA PROFILO
@@ -206,6 +216,70 @@ public class ApiService
         response.EnsureSuccessStatusCode();
     }
 
+    //TROVA PROGETTO CON ID
+    public async Task<Progetto> GetProjectByIdAsync(int projectId)
+    {
+        var response = await _httpClient.GetAsync($"get_project_by_id/?id={projectId}");
+        response.EnsureSuccessStatusCode();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<Progetto>(jsonResponse);
+    }
+
+    // ---------------------------------------------------- TASK ----------------------------------------------------------
+    public async Task<(int TotalTasks, int CompletedTasks)> GetTaskCountsAsync(int projectId)
+    {
+        var response = await _httpClient.GetAsync($"count_tasks_in_project/?id={projectId}");
+        response.EnsureSuccessStatusCode();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        var taskCounts = JsonConvert.DeserializeObject<Dictionary<string, int>>(jsonResponse);
+        return (taskCounts["total_tasks"], taskCounts["completed_tasks"]);
+    }
+
+
+
+    public async Task<List<Compito>> GetTasksByProjectIdAsync(int projectId)
+    {
+        var response = await _httpClient.GetAsync($"tasks_by_project/?progetto_id={projectId}");
+        response.EnsureSuccessStatusCode();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<List<Compito>>(jsonResponse);
+        
+    }
+
+    public async Task<Compito> GetTaskByIdAsync(int taskId)
+    {
+        var response = await _httpClient.GetAsync($"get_task_by_id/?id={taskId}");
+        response.EnsureSuccessStatusCode();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<Compito>(jsonResponse);
+    }
+
+    public async Task<Compito> CreateTaskAsync(Compito newTask)
+    {
+        var response = await PostAsync("task", newTask); // Modifica l'endpoint con quello corretto
+        response.EnsureSuccessStatusCode();
+        var createdTask = await response.Content.ReadFromJsonAsync<Compito>();
+        if (createdTask == null)
+        {
+            throw new InvalidOperationException("La risposta non contiene un task valido.");
+        }
+        Debug.WriteLine("Task Creato JSON Response: " + createdTask);
+        return createdTask;
+    }
+
+    public async Task<HttpResponseMessage> UpdateTaskAsync(Compito updatedTask)
+    {
+        var response = await _httpClient.PutAsync($"update_task/{updatedTask.ID}", new StringContent(JsonConvert.SerializeObject(updatedTask), Encoding.UTF8, "application/json"));
+        response.EnsureSuccessStatusCode();
+        return response;
+    }
+
+
+    public async Task DeleteTaskAsync(int taskId)
+    {
+        var response = await _httpClient.DeleteAsync($"delete_task/?id={taskId}");
+        response.EnsureSuccessStatusCode();
+    }
 
 
 

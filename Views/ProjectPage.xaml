@@ -1,0 +1,185 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ProgettoAPL.ViewModels"
+             x:Class="ProgettoAPL.Views.ProjectPage"
+             BackgroundColor="#5387a5">
+    <ContentPage.BindingContext>
+        <vm:ProjectViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid RowDefinitions="Auto,*,Auto"
+             BackgroundColor="#F3F4F6">
+        <!-- Barra Superiore con Titolo e Icone -->
+        <Grid RowDefinitions="Auto"
+                 BackgroundColor="#5387a5"
+                 Padding="10"
+                 VerticalOptions="Start">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Titolo -->
+            <Label Text="CoAuthLab - Progetto"
+                      FontSize="24"
+                      TextColor="White"
+                      FontAttributes="Bold"
+                      VerticalTextAlignment="Center"
+                      Grid.Column="0"/>
+
+            <!-- Icona Profilo -->
+            <ImageButton Source="profile_icon.png"
+                            Command="{Binding ProfileCommand}"
+                            WidthRequest="40"
+                            HeightRequest="40"
+                            BackgroundColor="Transparent"
+                            BorderColor="Transparent"
+                            Grid.Column="1"
+                            Margin="5"/>
+
+            <!-- Icona Logout -->
+            <ImageButton Source="logout_icon.png"
+                            Command="{Binding LogoutCommand}"
+                            WidthRequest="30"
+                            HeightRequest="40"
+                            BackgroundColor="Transparent"
+                            BorderColor="Transparent"
+                            Grid.Column="2"
+                            Margin="5"/>
+        </Grid>
+
+
+        <!-- Contenuto Principale -->
+        <ScrollView Grid.Row="1" Padding="20">
+
+            <StackLayout Spacing="20">
+
+                <!-- Blocco rettangolare per la descrizione e l'autore del progetto -->
+                <Frame BackgroundColor="#3498DB"
+                    CornerRadius="10"
+                    Padding="15"
+                    HasShadow="True">
+                    <StackLayout>
+                        <HorizontalStackLayout>
+                        <Label Text="{Binding ProjectDescription}"
+                        FontSize="30"
+                        TextColor="White"
+                        FontAttributes="Bold"/>             
+
+                        <Label Text="{Binding ProjectAuthor}"
+                            FontSize="17"
+                            TextColor="White"
+                            VerticalTextAlignment="Center"
+                             Margin="10,5,0,0"/>
+                        </HorizontalStackLayout>
+                        
+                        <Label Text="{Binding TaskCount, StringFormat='Task Totali: {0}'}"
+                           FontSize="14"
+                           TextColor="White"/>
+
+                        <Label Text="{Binding CompletedTaskCount, StringFormat='Task Completati: {0}'}"
+                            FontSize="14"
+                            TextColor="White"/>
+
+                        
+       
+                    </StackLayout>
+                </Frame>
+
+
+                <!-- Blocco per la gestione dei task -->
+                <Frame BackgroundColor="LightGray"
+                CornerRadius="10"
+                Padding="15"
+                HasShadow="True">
+                    <StackLayout Spacing="10">
+
+                        <!-- Pulsante Crea Nuovo Task -->
+                        <Button Text="+ Crea Nuovo Task"
+                        Command="{Binding NewTaskCommand}"
+                        BackgroundColor="LightSkyBlue"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="10"
+                        HeightRequest="50"/>    
+
+                        <!-- Form di creazione del task -->
+                        <StackLayout IsVisible="{Binding IsCreatingTask}" Padding="10" Margin="10">
+                            <Label Text="Nuovo Task" FontSize="20" FontAttributes="Bold" />
+                            <Entry Placeholder="Descrizione" Text="{Binding NewTaskDescription}" PlaceholderColor="#2C3E50" TextColor="White"/>
+                            <Entry Placeholder="Commenti" Text="{Binding NewTaskComments}" PlaceholderColor="#2C3E50" TextColor="White"/>
+                            <Picker Title="Seleziona Utente Incaricato" ItemsSource="{Binding Users}" ItemDisplayBinding="{Binding Username}" SelectedItem="{Binding AssignedUser}" 
+                                    TitleColor="#2C3E50" Margin="10"
+                                    BackgroundColor="WhiteSmoke" TextColor="#2C3E50"
+                                    />
+
+                            <Button Text="Crea" Command="{Binding CreateTaskCommand}" />
+                        </StackLayout>
+
+                        <!-- Messaggio "Nessun Task" -->
+                        <Label Text="Nessun Task"
+                IsVisible="{Binding HasNoTasks}"
+                TextColor="White"
+                FontAttributes="Bold"              
+                HorizontalOptions="Center"
+                VerticalOptions="CenterAndExpand" />
+
+                        <!-- Lista dei Task -->
+                        <CollectionView ItemsSource="{Binding Tasks}"
+   SelectionMode="Single"
+   IsVisible="{Binding HasTasks}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame BackgroundColor="White"
+                   CornerRadius="8"
+                   Padding="15"
+                   Margin="5"
+                   BorderColor="#F3F4F6"
+                                           >
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <StackLayout>
+                                                <StackLayout.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectViewModel}}, Path=TaskSelectedCommand}"
+                                CommandParameter="{Binding .}" />
+                                                </StackLayout.GestureRecognizers>
+                                                <Label Text="{Binding Descrizione}"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#333333" />
+                                                <Label Text="{Binding Commenti}"
+                               FontSize="14"
+                               TextColor="#777777"/>
+                                            </StackLayout>
+                                            <ImageButton Source="delete_icon.png"
+                                 IsVisible="{Binding CanDelete}"
+                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectViewModel}}, Path=DeleteTaskCommand}"
+                                 CommandParameter="{Binding .}"
+                                 WidthRequest="40"
+                                 HeightRequest="40"
+                                 Grid.Column="1"
+                                 Margin="0,0,10,0"/>
+                                        </Grid>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                    </StackLayout>
+                </Frame>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Footer -->
+        <Label Text="2024 CoAuthLab. Tutti i diritti riservati."
+                  FontSize="12"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center"
+                  TextColor="#555555"
+                  Grid.Row="2"
+                  Margin="10"/>
+    </Grid>
+</ContentPage>
