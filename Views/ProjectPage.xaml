@@ -8,7 +8,8 @@
     </ContentPage.BindingContext>
 
     <Grid RowDefinitions="Auto,*,Auto"
-             BackgroundColor="#F3F4F6">
+             BackgroundColor="#F3F4F6"
+          Padding="0,-50,0,0">
         <!-- Barra Superiore con Titolo e Icone -->
         <Grid RowDefinitions="Auto"
                  BackgroundColor="#5387a5"
@@ -57,7 +58,7 @@
             <StackLayout Spacing="20">
 
                 <!-- Blocco rettangolare per la descrizione e l'autore del progetto -->
-                <Frame BackgroundColor="#3498DB"
+                <Frame BackgroundColor="#7ebccc"
                     CornerRadius="10"
                     Padding="15"
                     HasShadow="True">
@@ -99,7 +100,7 @@
                         <!-- Pulsante Crea Nuovo Task -->
                         <Button Text="+ Crea Nuovo Task"
                         Command="{Binding NewTaskCommand}"
-                        BackgroundColor="LightSkyBlue"
+                        BackgroundColor="#96e2d9"
                         TextColor="White"
                         FontAttributes="Bold"
                         CornerRadius="10"
@@ -112,10 +113,10 @@
                             <Entry Placeholder="Commenti" Text="{Binding NewTaskComments}" PlaceholderColor="#2C3E50" TextColor="White"/>
                             <Picker Title="Seleziona Utente Incaricato" ItemsSource="{Binding Users}" ItemDisplayBinding="{Binding Username}" SelectedItem="{Binding AssignedUser}" 
                                     TitleColor="#2C3E50" Margin="10"
-                                    BackgroundColor="WhiteSmoke" TextColor="#2C3E50"
+                                    BackgroundColor="LightGray" TextColor="#2C3E50"
                                     />
 
-                            <Button Text="Crea" Command="{Binding CreateTaskCommand}" />
+                            <Button Text="Crea" Command="{Binding CreateTaskCommand}"  BackgroundColor="#8ad5d7"/>
                         </StackLayout>
 
                         <!-- Messaggio "Nessun Task" -->
@@ -138,7 +139,7 @@
                    Margin="5"
                    BorderColor="#F3F4F6"
                                            >
-                                        <Grid ColumnDefinitions="*,Auto">
+                                        <Grid ColumnDefinitions="*,Auto,Auto">
                                             <StackLayout>
                                                 <StackLayout.GestureRecognizers>
                                                     <TapGestureRecognizer
@@ -153,13 +154,13 @@
                                FontSize="14"
                                TextColor="#777777"/>
                                             </StackLayout>
-                                            <ImageButton Source="delete_icon.png"
-                                 IsVisible="{Binding CanDelete}"
+                                            <ImageButton Source="done_icon.png" IsVisible="{Binding Completato}" WidthRequest="40" HeightRequest="40" Grid.Column="1" />
+                                            <ImageButton Source="delete_icon.png" IsVisible="{Binding CanDelete}"
                                  Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProjectViewModel}}, Path=DeleteTaskCommand}"
                                  CommandParameter="{Binding .}"
                                  WidthRequest="40"
                                  HeightRequest="40"
-                                 Grid.Column="1"
+                                 Grid.Column="2"
                                  Margin="0,0,10,0"/>
                                         </Grid>
                                     </Frame>

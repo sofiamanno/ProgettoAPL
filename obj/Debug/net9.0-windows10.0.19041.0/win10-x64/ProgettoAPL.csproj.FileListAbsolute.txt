@@ -478,3 +478,13 @@ C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.1904
 C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\qualifiers.txt
 C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\qualifiers.txt.intermediate
 C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\MultipleQualifiersPerDimensionFound.txt
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\bin\Debug\net9.0-windows10.0.19041.0\win10-x64\done_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\resizetizer\r\done_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\resizetizer\r\execute_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\resizetizer\r\results_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\resizetizer\r\statistics_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\obj\Debug\net9.0-windows10.0.19041.0\win10-x64\resizetizer\r\view_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\bin\Debug\net9.0-windows10.0.19041.0\win10-x64\execute_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\bin\Debug\net9.0-windows10.0.19041.0\win10-x64\results_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\bin\Debug\net9.0-windows10.0.19041.0\win10-x64\statistics_icon.scale-100.png
+C:\Users\Sofia\Desktop\ProgettoAPL\ProgettoAPL\bin\Debug\net9.0-windows10.0.19041.0\win10-x64\view_icon.scale-100.png

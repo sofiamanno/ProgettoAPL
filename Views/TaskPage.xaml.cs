@@ -12,7 +12,8 @@ namespace ProgettoAPL.Views
         public TaskPage(int taskId)
         {
             InitializeComponent();
-            var viewModel = (TaskViewModel)BindingContext;
+            var viewModel = new TaskViewModel();
+            BindingContext = viewModel;
             viewModel.LoadTaskDetails(taskId);
         }
     }

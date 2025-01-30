@@ -8,7 +8,9 @@ namespace ProgettoAPL.Models
 {
     public class Allegato
     {
-        public string Url { get; set; }
+        public int Id { get; set; }
+        public string Link { get; set; }
         public string Descrizione { get; set; }
+        public int TaskID { get; set; }
     }
 }

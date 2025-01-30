@@ -282,6 +282,78 @@ public class ApiService
     }
 
 
+    //---------------------------------------------FILE --------------------------------------------------------------
+    public async Task<HttpResponseMessage> UploadFileAsync(MultipartFormDataContent content)
+    {
+        var response = await _httpClient.PostAsync("files", content); // Modifica l'endpoint con quello corretto
+        response.EnsureSuccessStatusCode();
+        return response;
+    }
+
+    public async Task<HttpResponseMessage> UploadCodeAsync(MultipartFormDataContent content)
+    {
+        var response = await _httpClient.PostAsync("code", content); // Modifica l'endpoint con quello corretto
+        response.EnsureSuccessStatusCode();
+        return response;
+    }
+
+    public async Task<List<Allegato>> GetAttachmentsByTaskIdAsync(int taskId)
+    {
+        Debug.WriteLine("TaskId:" + taskId);
+        var response = await _httpClient.GetAsync($"file_by_task/?task_id={taskId}");
+
+        response.EnsureSuccessStatusCode();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<List<Allegato>>(jsonResponse);
+    }
+    public async Task<HttpResponseMessage> DownloadAttachmentAsync(Allegato allegato)
+    {
+        var content = new MultipartFormDataContent();
+        content.Add(new StringContent(allegato.Id.ToString()), "id");
+        
+        content.Add(new StringContent(allegato.Link), "link");
+        content.Add(new StringContent(allegato.Descrizione), "descrizione");
+        content.Add(new StringContent(allegato.TaskID.ToString()), "taskId");
+
+       
+        var response = await _httpClient.PostAsync("download_attachment", content); // Modifica l'endpoint con quello corretto
+
+        response.EnsureSuccessStatusCode();
+        return response;
+    }
+
+    public async Task<ExecutionResponse> ExecuteTaskAsync(int taskId)
+
+    {
+        var response = await _httpClient.GetAsync($"run_code/?task_id={taskId}");
+        response.EnsureSuccessStatusCode();
+        var jsonResponse = await response.Content.ReadAsStringAsync();
+        return JsonConvert.DeserializeObject<ExecutionResponse>(jsonResponse);
+    }
+
+    public class ExecutionResponse
+    {
+        public string Message { get; set; }
+        public int ExecutionId { get; set; }
+    }
+
+
+    public async Task<string> ViewTaskAsync(int taskId)
+    {
+        var response = await _httpClient.GetAsync($"get_status_code/?task_id={taskId}");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    public async Task<string> StatisticsAsync(int taskId)
+    {
+        var response = await _httpClient.GetAsync($"get_statistics/?task_id={taskId}");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
+
+
+
 
     // <----------------------------------------------- METODI GENERICI --------------------------------------------------->
     // Metodo GET Generico: Effettua richieste GET e restituisce il contenuto della risposta come stringa

@@ -8,7 +8,10 @@ using ProgettoAPL.Services;
 using ProgettoAPL.Views;
 using System.Diagnostics;
 using System.Net;
-
+using System.Collections.ObjectModel;
+using System.Net.Http.Headers;
+using System.Net.Mail;
+using Newtonsoft.Json;
 namespace ProgettoAPL.ViewModels
 {
     public class TaskViewModel : INotifyPropertyChanged
@@ -20,7 +23,23 @@ namespace ProgettoAPL.ViewModels
         private string _taskAuthor;
         private string _assignedUser;
         private bool _taskCompleted;
+        private bool _isFileSelected;
+        private FileResult _fileToSend;
+        private string _uploadedFile;
+        private string _uploadedCode;
+        private string _selectedFileName;
+        private ObservableCollection<Allegato> _attachments;
 
+        public string SelectedFileName
+        {
+            get => _selectedFileName;
+            set => SetProperty(ref _selectedFileName, value);
+        }
+        public ObservableCollection<Allegato> Attachments
+        {
+            get => _attachments;
+            set => SetProperty(ref _attachments, value);
+        }
         public int TaskId { get; set; }
 
         public string TaskDescription
@@ -59,9 +78,51 @@ namespace ProgettoAPL.ViewModels
                 }
             }
         }
+       
+
+        public bool IsFileSelected
+        {
+            get => _isFileSelected;
+            set => SetProperty(ref _isFileSelected, value);
+        }
+
+        public FileResult FileToSend
+        {
+            get => _fileToSend;
+            set => SetProperty(ref _fileToSend, value);
+        }
+
+        public string UploadedFile
+        {
+            get => _uploadedFile;
+            set => SetProperty(ref _uploadedFile, value);
+
+
+        }
+
+        public string UploadedCode
+        {
+            get => _uploadedCode;
+            set => SetProperty(ref _uploadedCode, value);
+        }
+
+
+
+        //-----------------------------------------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------------------------------------
 
         public ICommand LogoutCommand { get; }
         public ICommand ProfileCommand { get; }
+        public ICommand UploadFileCommand { get; }
+
+        public ICommand UploadCodeCommand { get; }
+        public ICommand SendFileCommand { get; }
+        public ICommand ConfirmSendFileCommand { get; }
+        public ICommand DownloadAttachmentCommand { get; }
+        public ICommand ExecuteTaskCommand { get; }
+        public ICommand ViewTaskCommand { get; }
+        public ICommand StatisticsCommand { get; }
+
 
         public TaskViewModel()
         {
@@ -69,10 +130,21 @@ namespace ProgettoAPL.ViewModels
 
             LogoutCommand = new Command(async () => await ExecuteWithExceptionHandling(OnLogout));
             ProfileCommand = new Command(async () => await ExecuteWithExceptionHandling(OnProfile));
+            UploadFileCommand = new Command(async () => await ExecuteWithExceptionHandling(PickAndShowFileAsync));
+            UploadCodeCommand = new Command(async () => await ExecuteWithExceptionHandling(PickAndShowCodeAsync));
+            ConfirmSendFileCommand = new Command(async () => await ExecuteWithExceptionHandling(() => ConfirmSendFileAsync(TaskId)));
+            DownloadAttachmentCommand = new Command<Allegato>(async (attachment) => await ExecuteWithExceptionHandling(() => DownloadAttachmentAsync(attachment)));
+            ExecuteTaskCommand = new Command(async () => await ExecuteTaskAsync(TaskId));
+            ViewTaskCommand = new Command(async () => await ViewTaskAsync(TaskId));
+            StatisticsCommand = new Command(async () => await ShowStatisticsAsync(TaskId));
+
+            Attachments = new ObservableCollection<Allegato>();
 
             LoadUserProfile();
         }
 
+
+       
         private async void LoadUserProfile()
         {
             await ExecuteWithExceptionHandling(async () =>
@@ -109,6 +181,8 @@ namespace ProgettoAPL.ViewModels
                     TaskAuthor = author.Username;
                     var assignedUser = await _apiService.GetAuthorByIdAsync(task.IncaricatoID);
                     AssignedUser = assignedUser.Username;
+
+                    await LoadAttachments(taskId);
                 }
                 else
                 {
@@ -116,6 +190,8 @@ namespace ProgettoAPL.ViewModels
                 }
             });
         }
+
+
 
         private async void UpdateTaskCompletionStatus()
         {
@@ -130,6 +206,207 @@ namespace ProgettoAPL.ViewModels
                 await _apiService.UpdateTaskAsync(updatedTask);
             });
         }
+
+
+        private async Task PickAndShowFileAsync()
+        {
+
+            try
+            {
+                var result = await FilePicker.PickAsync();
+                if (result != null)
+                {
+                    FileToSend = result;
+                    IsFileSelected = true;
+                    UploadedFile = result.FileName;
+                    UploadedCode = null; // Clear the code if a file is selected
+                    SelectedFileName = result.FileName;
+                    Debug.WriteLine("File selezionato: " + result.FileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Gestisci eventuali errori
+                await Application.Current.MainPage.DisplayAlert("Errore", ex.Message, "OK");
+            }
+        }
+
+        private async Task PickAndShowCodeAsync()
+        {
+            try
+            {
+                var result = await FilePicker.PickAsync(new PickOptions
+                {
+                    PickerTitle = "Seleziona un file Python",
+                    FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.WinUI, new[] { ".py" } }, // Windows specific file extension
+            })
+                });
+
+                if (result != null)
+                {
+                    FileToSend = result;
+                    IsFileSelected = true;
+                    UploadedCode = result.FileName;
+                    UploadedFile = null; // Clear the file if a code is selected
+                    SelectedFileName = result.FileName;
+                    Debug.WriteLine("Codice selezionato: " + result.FileName);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Gestisci eventuali errori
+                await Application.Current.MainPage.DisplayAlert("Errore", ex.Message, "OK");
+            }
+        }
+
+
+        private async Task ConfirmSendFileAsync(int taskId)
+        {
+            if (FileToSend != null)
+            {
+                if (!string.IsNullOrEmpty(UploadedFile))
+                {
+                    await SendFileAsync(FileToSend, "file", taskId);
+                }
+                else if (!string.IsNullOrEmpty(UploadedCode))
+                {
+                    await SendFileAsync(FileToSend, "code", taskId);
+                }
+                IsFileSelected = false;
+                FileToSend = null;
+                SelectedFileName = null;
+                await LoadAttachments(taskId); // Ricarica gli allegati per aggiornare la lista
+
+            }
+        }
+
+        private async Task SendFileAsync(FileResult file, string route, int taskId)
+        {
+            try
+            {
+                using (var stream = await file.OpenReadAsync())
+                {
+                    var content = new MultipartFormDataContent();
+                    content.Add(new StreamContent(stream), "file", file.FileName);
+                    content.Add(new StringContent(taskId.ToString()), "taskId");
+
+                    HttpResponseMessage response;
+                    if (route == "file")
+                    {
+                        response = await _apiService.UploadFileAsync(content);
+                    }
+                    else
+                    {
+                        response = await _apiService.UploadCodeAsync(content);
+                    }
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        await ShowAlert("Successo", "File inviato con successo.");
+                    }
+                    else
+                    {
+                        await ShowAlert("Errore", "Errore durante l'invio del file.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await ShowAlert("Errore", $"Errore durante l'invio del file: {ex.Message}");
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------------------------------------
+
+
+        private async Task LoadAttachments(int taskId)
+        {
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                var attachments = await _apiService.GetAttachmentsByTaskIdAsync(taskId);
+                Attachments.Clear();
+                if (attachments != null && attachments.Count > 0)
+                {
+                    foreach (var attachment in attachments)
+                    {
+                        Attachments.Add(attachment);
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Nessun allegato trovato per il task con ID: " + taskId);
+                }
+            });
+        }
+
+
+        private async Task DownloadAttachmentAsync(Allegato attachment)
+        {
+            try
+            {
+                var response = await _apiService.DownloadAttachmentAsync(attachment);
+                var stream = await response.Content.ReadAsStreamAsync();
+                var filePath = Path.Combine("C:\\Users\\Sofia\\Downloads", attachment.Descrizione);
+
+                using (var fileStream = File.Create(filePath))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
+
+                await ShowAlert("Successo", $"Allegato scaricato: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                await ShowAlert("Errore", $"Errore durante il download dell'allegato: {ex.Message}");
+            }
+        }
+
+
+        private async Task ExecuteTaskAsync(int taskId)
+        {
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                Debug.WriteLine("TASKID:  " + taskId);  
+                var response = await _apiService.ExecuteTaskAsync(taskId);
+                await ShowAlert("Successo", $"Esecuzione del codice avviata. ID esecuzione: {response.ExecutionId}");
+                await LoadAttachments(taskId);
+            });
+        }
+
+
+
+        private async Task ViewTaskAsync(int taskId)
+        {
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                    var jsonResponse = await _apiService.ViewTaskAsync(taskId);
+                    await ShowAlert("Stato Esecuzione", jsonResponse);
+                    await LoadAttachments(taskId);
+            });
+        }
+
+
+
+        private async Task ShowStatisticsAsync(int taskId)
+        {
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                var jsonResponse = await _apiService.StatisticsAsync(taskId);
+                await ShowAlert("Statistiche", jsonResponse);
+                await LoadAttachments(taskId);
+            });
+        }
+
+
+
+
+
+
+        //-----------------------------------------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------------------------------------
 
         private async Task OnLogout()
         {

@@ -14,7 +14,9 @@
         </ResourceDictionary>
     </ContentPage.Resources>
     
+
     <Grid>
+        
         <!-- Sfondo principale -->
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />

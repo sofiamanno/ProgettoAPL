@@ -205,6 +205,7 @@ namespace ProgettoAPL.ViewModels
                                 {
                                     Id = task.ID,
                                     Descrizione = task.Descrizione,
+                                    Completato = task.Completato,
                                     Commenti = task.Commenti,
                                     AutoreID = task.AutoreID,
                                     IncaricatoID = task.IncaricatoID,

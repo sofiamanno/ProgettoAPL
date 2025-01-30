@@ -2,17 +2,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:ProgettoAPL.ViewModels"
              x:Class="ProgettoAPL.Views.GestioneProfiloPage"
-             BackgroundColor="#2C3E50">
+             BackgroundColor="#5387a5">
 
     <ContentPage.BindingContext>
         <vm:GestioneProfiloViewModel />
     </ContentPage.BindingContext>
 
     <Grid RowDefinitions="Auto,*,Auto"
-          BackgroundColor="#F3F4F6">
+          BackgroundColor="#F3F4F6"
+          Padding="0,-50,0,0">
         <!-- Barra Superiore con Titolo e Icone -->
         <Grid RowDefinitions="Auto"
-              BackgroundColor="#2C3E50"
+              BackgroundColor="#5387a5"
               Padding="10"
               VerticalOptions="Start">
 
@@ -60,8 +61,8 @@
 
                 <!-- Mostra i dati dell'utente -->
                 <Frame CornerRadius="10"
-                       BorderColor="#3498DB"
-                       BackgroundColor="#2C3E50"
+                       BorderColor="#5387a5"
+                       BackgroundColor="#7ebccc"
                        Padding="15"
                        WidthRequest="350">
                     <VerticalStackLayout>
@@ -76,8 +77,8 @@
                 </Frame>
 
                 <Frame CornerRadius="10"
-                       BorderColor="#3498DB"
-                       BackgroundColor="#2C3E50"
+                       BorderColor="#5387a5"
+                       BackgroundColor="#7ebccc"
                        Padding="15"
                        WidthRequest="350">
                     <VerticalStackLayout>
@@ -117,7 +118,7 @@
                 <!-- Bottone per confermare la modifica della password -->
                 <Button Text="Conferma"
                         Command="{Binding ConfermaPasswordCommand}"
-                        BackgroundColor="#3498DB"
+                        BackgroundColor="#659eb6"
                         TextColor="White"
                         CornerRadius="10"
                         Padding="10"/>

@@ -3,12 +3,15 @@
                 xmlns:vm="clr-namespace:ProgettoAPL.ViewModels"
                 x:Class="ProgettoAPL.Views.HomePage"
                 BackgroundColor="#5387a5">
+       
+       
        <ContentPage.BindingContext>
            <vm:HomeViewModel />
        </ContentPage.BindingContext>
 
        <Grid RowDefinitions="Auto,*,Auto"
-             BackgroundColor="#F3F4F6">
+             BackgroundColor="#F3F4F6"
+             Padding="0,-50,0,0">
            <!-- Barra Superiore con Titolo e Icone -->
            <Grid RowDefinitions="Auto"
                  BackgroundColor="#5387a5"
@@ -66,7 +69,7 @@
                   <StackLayout IsVisible="{Binding IsCreatingProject}" Padding="10" Margin="10">
                        <Label Text="Nuovo Progetto" FontSize="20" FontAttributes="Bold" />
                       <Entry Placeholder="Descrizione" Text="{Binding NewProjectDescription}"  PlaceholderColor="#5387a5" TextColor="White"/>
-                       <Button Text="Crea" Command="{Binding CreateProjectCommand}" />
+                    <Button Text="Crea" Command="{Binding CreateProjectCommand}" BackgroundColor="#8ad5d7" />
                    </StackLayout>
                    <!-- Titolo Progetti -->
                    <Label Text="I tuoi progetti"
