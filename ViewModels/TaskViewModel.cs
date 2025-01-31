@@ -122,6 +122,7 @@ namespace ProgettoAPL.ViewModels
         public ICommand ExecuteTaskCommand { get; }
         public ICommand ViewTaskCommand { get; }
         public ICommand StatisticsCommand { get; }
+        public ICommand ViewResultsCommand { get; }
 
 
         public TaskViewModel()
@@ -137,6 +138,8 @@ namespace ProgettoAPL.ViewModels
             ExecuteTaskCommand = new Command(async () => await ExecuteTaskAsync(TaskId));
             ViewTaskCommand = new Command(async () => await ViewTaskAsync(TaskId));
             StatisticsCommand = new Command(async () => await ShowStatisticsAsync(TaskId));
+            ViewResultsCommand = new Command(async () => await ViewResultsAsync(TaskId));
+
 
             Attachments = new ObservableCollection<Allegato>();
 
@@ -210,12 +213,18 @@ namespace ProgettoAPL.ViewModels
 
         private async Task PickAndShowFileAsync()
         {
-
             try
             {
                 var result = await FilePicker.PickAsync();
                 if (result != null)
                 {
+                    // Controlla l'estensione del file
+                    if (Path.GetExtension(result.FileName).Equals(".py", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await Application.Current.MainPage.DisplayAlert("Errore", "Non è possibile caricare file con estensione .py.", "OK");
+                        return;
+                    }
+
                     FileToSend = result;
                     IsFileSelected = true;
                     UploadedFile = result.FileName;
@@ -382,9 +391,20 @@ namespace ProgettoAPL.ViewModels
         {
             await ExecuteWithExceptionHandling(async () =>
             {
-                    var jsonResponse = await _apiService.ViewTaskAsync(taskId);
-                    await ShowAlert("Stato Esecuzione", jsonResponse);
-                    await LoadAttachments(taskId);
+                var jsonResponse = await _apiService.ViewTaskAsync(taskId);
+                var taskData = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
+
+                if (taskData != null && taskData.TryGetValue("status", out var statoEsecuzione))
+                {
+                    var message = $"Stato di Esecuzione: {statoEsecuzione}";
+                    await ShowAlert("Stato Esecuzione", message);
+                }
+                else
+                {
+                    await ShowAlert("Errore", "Formato dello stato di esecuzione non valido.");
+                }
+
+                await LoadAttachments(taskId);
             });
         }
 
@@ -395,7 +415,49 @@ namespace ProgettoAPL.ViewModels
             await ExecuteWithExceptionHandling(async () =>
             {
                 var jsonResponse = await _apiService.StatisticsAsync(taskId);
-                await ShowAlert("Statistiche", jsonResponse);
+                var statisticsData = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
+
+                if (statisticsData != null && statisticsData.TryGetValue("errors", out var errors) && statisticsData.TryGetValue("execution_time", out var executionTime))
+                {
+                    var message = $"Numero di errori: {errors}\nTempo di esecuzione: {executionTime} secondi";
+                    await ShowAlert("Statistiche", message);
+                }
+                else
+                {
+                    await ShowAlert("Errore", "Formato delle statistiche non valido.");
+                }
+
+                await LoadAttachments(taskId);
+            });
+        }
+
+        private async Task ViewResultsAsync(int taskId)
+        {
+            await ExecuteWithExceptionHandling(async () =>
+            {
+                var jsonResponse = await _apiService.ResultsAsync(taskId);
+                var resultsData = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonResponse);
+
+                if (resultsData != null && resultsData.TryGetValue("output", out var output))
+                {
+                    string message;
+                    if (resultsData.TryGetValue("created_files", out var files))
+                    {
+                        var filesList = JsonConvert.DeserializeObject<List<string>>(files.ToString());
+                        var filesMessage = string.Join("\n", filesList);
+                        message = $"File creati:\n{filesMessage}\n\nOutput:\n{output}";
+                    }
+                    else
+                    {
+                        message = $"Output:\n{output}";
+                    }
+                    await ShowAlert("Risultati", message);
+                }
+                else
+                {
+                    await ShowAlert("Errore", "Formato dei risultati non valido.");
+                }
+
                 await LoadAttachments(taskId);
             });
         }

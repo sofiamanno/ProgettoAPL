@@ -316,19 +316,29 @@ namespace ProgettoAPL.ViewModels
 
         private async Task OnDeleteTask(TaskDisplayModel task)
         {
-            await _apiService.DeleteTaskAsync(task.Id);
-            Tasks.Remove(task);
+            bool isConfirmed = await Application.Current.MainPage.DisplayAlert(
+                "Conferma Eliminazione",
+                "Sei sicuro di voler eliminare questo task?",
+                "Sì",
+                "No"
+            );
 
-            // Aggiorna i valori di TaskCount e CompletedTaskCount
-            TaskCount--;
-            if (task.Completato)
+            if (isConfirmed)
             {
-                CompletedTaskCount--;
-            }
+                await _apiService.DeleteTaskAsync(task.Id);
+                Tasks.Remove(task);
 
-            // Aggiorna HasNoTasks
-            OnPropertyChanged(nameof(HasTasks));
-            OnPropertyChanged(nameof(HasNoTasks));
+                // Aggiorna i valori di TaskCount e CompletedTaskCount
+                TaskCount--;
+                if (task.Completato)
+                {
+                    CompletedTaskCount--;
+                }
+
+                // Aggiorna HasNoTasks
+                OnPropertyChanged(nameof(HasTasks));
+                OnPropertyChanged(nameof(HasNoTasks));
+            }
         }
 
         private async Task OnLogout()

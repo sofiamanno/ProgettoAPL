@@ -30,7 +30,7 @@ public class ApiService
 
         _httpClient = new HttpClient(_httpClientHandler)
         {
-            BaseAddress = new Uri("http://192.168.234.231:8080/") // Modifica con il tuo URL
+            BaseAddress = new Uri("http://151.97.115.153:8080/") // Modifica con il tuo URL
         };
     }
 
@@ -81,7 +81,7 @@ public class ApiService
             response.EnsureSuccessStatusCode();
 
             // Verifica i cookie di sessione
-            var cookies = _httpClientHandler.CookieContainer.GetCookies(new Uri("http://192.168.234.231:8080/"));
+            var cookies = _httpClientHandler.CookieContainer.GetCookies(new Uri("http://151.97.115.153:8080/"));
             foreach (Cookie cookie in cookies)
             {
                 System.Diagnostics.Debug.WriteLine($"Cookie: {cookie.Name} = {cookie.Value}");
@@ -352,6 +352,12 @@ public class ApiService
         return await response.Content.ReadAsStringAsync();
     }
 
+    public async Task<string> ResultsAsync(int taskId)
+    {
+        var response = await _httpClient.GetAsync($"get_results/?task_id={taskId}");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync();
+    }
 
 
 

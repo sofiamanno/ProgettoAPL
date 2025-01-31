@@ -219,7 +219,8 @@
                                           WidthRequest="180"
                                           HeightRequest="180"
                                           BackgroundColor="Transparent"
-                                          BorderColor="Transparent"/>
+                                          BorderColor="Transparent"
+										  Command="{Binding ViewResultsCommand}"/>
                              <Label Text="Risultati"
                                     FontSize="16"
                                     TextColor="Gray"
